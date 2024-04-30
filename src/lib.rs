@@ -104,7 +104,7 @@ impl BoardState {
 
         println!("{:?}", fen_struct);
 
-        todo!()
+        return Ok(fen_struct);
     }
 
     // board portion of the fen
@@ -177,5 +177,167 @@ impl BoardState {
             }),
             _ => panic!("Error: failed to parse piece"),
         }
+    }
+    // TODO:
+    pub fn to_fen(board_state: BoardState) -> String {
+        todo!()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::Color::{Black, White};
+    use crate::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
+
+    #[test]
+    fn test_starting_position() {
+        let start_fen = BoardState::from_fen(STARTING_FEN).expect("Error");
+
+        let start_board = BoardState {
+            piece_placement: [
+                Some(Piece {
+                    color: Black,
+                    piece_type: Rook,
+                }),
+                Some(Piece {
+                    color: Black,
+                    piece_type: Knight,
+                }),
+                Some(Piece {
+                    color: Black,
+                    piece_type: Bishop,
+                }),
+                Some(Piece {
+                    color: Black,
+                    piece_type: Queen,
+                }),
+                Some(Piece {
+                    color: Black,
+                    piece_type: King,
+                }),
+                Some(Piece {
+                    color: Black,
+                    piece_type: Bishop,
+                }),
+                Some(Piece {
+                    color: Black,
+                    piece_type: Knight,
+                }),
+                Some(Piece {
+                    color: Black,
+                    piece_type: Rook,
+                }),
+                Some(Piece {
+                    color: Black,
+                    piece_type: Pawn,
+                }),
+                Some(Piece {
+                    color: Black,
+                    piece_type: Pawn,
+                }),
+                Some(Piece {
+                    color: Black,
+                    piece_type: Pawn,
+                }),
+                Some(Piece {
+                    color: Black,
+                    piece_type: Pawn,
+                }),
+                Some(Piece {
+                    color: Black,
+                    piece_type: Pawn,
+                }),
+                Some(Piece {
+                    color: Black,
+                    piece_type: Pawn,
+                }),
+                Some(Piece {
+                    color: Black,
+                    piece_type: Pawn,
+                }),
+                Some(Piece {
+                    color: Black,
+                    piece_type: Pawn,
+                }),
+                None,
+                None,
+                None,
+                None,
+                Some(Piece {
+                    color: White,
+                    piece_type: Pawn,
+                }),
+                Some(Piece {
+                    color: White,
+                    piece_type: Pawn,
+                }),
+                Some(Piece {
+                    color: White,
+                    piece_type: Pawn,
+                }),
+                Some(Piece {
+                    color: White,
+                    piece_type: Pawn,
+                }),
+                Some(Piece {
+                    color: White,
+                    piece_type: Pawn,
+                }),
+                Some(Piece {
+                    color: White,
+                    piece_type: Pawn,
+                }),
+                Some(Piece {
+                    color: White,
+                    piece_type: Pawn,
+                }),
+                Some(Piece {
+                    color: White,
+                    piece_type: Pawn,
+                }),
+                Some(Piece {
+                    color: White,
+                    piece_type: Rook,
+                }),
+                Some(Piece {
+                    color: White,
+                    piece_type: Knight,
+                }),
+                Some(Piece {
+                    color: White,
+                    piece_type: Bishop,
+                }),
+                Some(Piece {
+                    color: White,
+                    piece_type: Queen,
+                }),
+                Some(Piece {
+                    color: White,
+                    piece_type: King,
+                }),
+                Some(Piece {
+                    color: White,
+                    piece_type: Bishop,
+                }),
+                Some(Piece {
+                    color: White,
+                    piece_type: Knight,
+                }),
+                Some(Piece {
+                    color: White,
+                    piece_type: Rook,
+                }),
+            ]
+            .to_vec(),
+            active_color: White,
+            white_castle_kingside: true,
+            white_castle_queenside: true,
+            black_castle_kingside: true,
+            black_castle_queenside: true,
+            en_passant_target: None,
+            halfmove_clock: 0,
+            fullmove_clock: 1,
+        };
     }
 }
