@@ -1,32 +1,10 @@
-use std::fmt;
+mod error;
+
 use std::fmt::Error;
 
+use error::FenError;
+
 pub const STARTING_FEN: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
-#[derive(Debug)]
-pub enum FenError {
-    NotEnoughFields(String),
-    BadPieceNotation(String),
-    BadActiveColor(String),
-    BadEnPassant(String),
-    BadHalfmove(String),
-    BadFullmove(String),
-}
-
-impl fmt::Display for FenError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            FenError::NotEnoughFields(msg) => write!(f, "Not enough FEN fields: {}", msg),
-            FenError::BadPieceNotation(msg) => write!(f, "Piece notation error: {}", msg),
-            FenError::BadActiveColor(msg) => write!(f, "Active color error: {}", msg),
-            FenError::BadEnPassant(msg) => write!(f, "En passant error: {}", msg),
-            FenError::BadHalfmove(msg) => write!(f, "Halfmove error: {}", msg),
-            FenError::BadFullmove(msg) => write!(f, "Fullmove error: {}", msg),
-        }
-    }
-}
-
-impl std::error::Error for FenError {}
 
 /// Piece options and color piece belongs to
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -89,13 +67,16 @@ impl BoardState {
         };
     }
 
-    pub fn from_fen(fen: &str) -> Result<BoardState, Error> {
+    pub fn from_fen(fen: &str) -> Result<BoardState, FenError> {
         let mut fen_struct = BoardState::new();
         let fields: Vec<_> = fen.split(" ").collect();
         let board = Self::create_board(fields[0]);
         fen_struct.piece_placement = board;
 
-        let active_color = Self::get_active_color(fields[1]);
+        let active_color = match Self::get_active_color(fields[1]) {
+            Ok(color) => color,
+            Err(error) => panic!("{}", error),
+        };
         fen_struct.active_color = active_color;
 
         let castling = fields[2];
@@ -129,11 +110,11 @@ impl BoardState {
         return Ok(fen_struct);
     }
 
-    fn get_active_color(field: &str) -> Color {
+    fn get_active_color(field: &str) -> Result<Color, FenError> {
         match field {
-            "w" => Color::White,
-            "b" => Color::White,
-            _ => panic!("Error: failed to parse active color"),
+            "w" => Ok(Color::White),
+            "b" => Ok(Color::White),
+            _ => Err(FenError::BadActiveColor(("Unknown Color").to_string())),
         }
     }
 
@@ -142,70 +123,74 @@ impl BoardState {
         let board: Vec<_> = board.split("/").collect();
         let mut new_board = Vec::new();
         for file in board {
-            for square in file.chars() {
-                new_board.push(Self::get_piece(square));
+            for sq in file.chars() {
+                let piece = match Self::get_piece(sq) {
+                    Ok(square) => square,
+                    Err(error) => panic!("{}", error),
+                };
+                new_board.push(piece);
             }
         }
-        new_board
+        return new_board;
     }
 
-    fn get_piece(piece: char) -> Option<Piece> {
+    fn get_piece(piece: char) -> Result<Option<Piece>, FenError> {
         if piece.to_digit(10).is_some() {
-            return None;
+            return Ok(None);
         }
         match piece {
             // White pieces
-            'P' => Some(Piece {
+            'P' => Ok(Some(Piece {
                 color: Color::White,
                 piece_type: PieceType::Pawn,
-            }),
-            'N' => Some(Piece {
+            })),
+            'N' => Ok(Some(Piece {
                 color: Color::White,
                 piece_type: PieceType::Knight,
-            }),
-            'B' => Some(Piece {
+            })),
+            'B' => Ok(Some(Piece {
                 color: Color::White,
                 piece_type: PieceType::Bishop,
-            }),
-            'R' => Some(Piece {
+            })),
+            'R' => Ok(Some(Piece {
                 color: Color::White,
                 piece_type: PieceType::Rook,
-            }),
-            'Q' => Some(Piece {
+            })),
+            'Q' => Ok(Some(Piece {
                 color: Color::White,
                 piece_type: PieceType::Queen,
-            }),
-            'K' => Some(Piece {
+            })),
+            'K' => Ok(Some(Piece {
                 color: Color::White,
                 piece_type: PieceType::King,
-            }),
+            })),
 
             // Black pieces
-            'p' => Some(Piece {
+            'p' => Ok(Some(Piece {
                 color: Color::Black,
                 piece_type: PieceType::Pawn,
-            }),
-            'n' => Some(Piece {
+            })),
+            'n' => Ok(Some(Piece {
                 color: Color::Black,
                 piece_type: PieceType::Knight,
-            }),
-            'b' => Some(Piece {
+            })),
+            'b' => Ok(Some(Piece {
                 color: Color::Black,
                 piece_type: PieceType::Bishop,
-            }),
-            'r' => Some(Piece {
+            })),
+            'r' => Ok(Some(Piece {
                 color: Color::Black,
                 piece_type: PieceType::Rook,
-            }),
-            'q' => Some(Piece {
+            })),
+            'q' => Ok(Some(Piece {
                 color: Color::Black,
                 piece_type: PieceType::Queen,
-            }),
-            'k' => Some(Piece {
+            })),
+            'k' => Ok(Some(Piece {
                 color: Color::Black,
                 piece_type: PieceType::King,
-            }),
-            _ => panic!("Error: failed to parse piece"),
+            })),
+            _ => Err(FenError::BadPieceNotation(("Unknown piece").to_string())),
         }
     }
     // TODO:
