@@ -3,13 +3,7 @@ name = "fen-rs"
 description = "Forsyth-Edwards Notation parser"
 repository = "https://github.com/Selyss/fen-rs"
 license = "MIT"
-keywords = [
-    "chess",
-    "fen",
-    "fen-parser",
-    "chess-engine",
-    "forsyth-edwards notation",
-]
+keywords = ["chess", "fen", "fen-parser", "chess-engine", "forsyth-edwards"]
 categories = [
     "parser-implementations",
     "parsing",
