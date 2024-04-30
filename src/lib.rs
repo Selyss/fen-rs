@@ -48,7 +48,8 @@ pub struct BoardState {
 
 impl BoardState {
     pub fn new() -> BoardState {
-        let starting_board = Self::create_board(STARTING_FEN);
+        let fields: Vec<_> = STARTING_FEN.split(" ").collect();
+        let starting_board = Self::create_board(fields[0]);
         return BoardState {
             piece_placement: starting_board,
             active_color: Color::White,
