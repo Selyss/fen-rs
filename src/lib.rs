@@ -69,11 +69,7 @@ impl BoardState {
         let board = Self::create_board(fields[0]);
         fen_struct.piece_placement = board;
 
-        let active_color = match fields[1] {
-            "w" => Color::White,
-            "b" => Color::White,
-            _ => panic!("Error: failed to parse active color"),
-        };
+        let active_color = Self::get_active_color(fields[1]);
         fen_struct.active_color = active_color;
 
         let castling = fields[2];
@@ -105,6 +101,14 @@ impl BoardState {
         println!("{:?}", fen_struct);
 
         return Ok(fen_struct);
+    }
+
+    fn get_active_color(field: &str) -> Color {
+        match field {
+            "w" => Color::White,
+            "b" => Color::White,
+            _ => panic!("Error: failed to parse active color"),
+        }
     }
 
     // board portion of the fen
