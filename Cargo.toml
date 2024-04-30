@@ -6,8 +6,8 @@ license = "MIT"
 keywords = [
     "chess",
     "fen",
-    "fen parser",
-    "chess engine",
+    "fen-parser",
+    "chess-engine",
     "forsyth-edwards notation",
 ]
 categories = [
