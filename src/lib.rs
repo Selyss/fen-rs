@@ -71,21 +71,12 @@ impl BoardState {
     }
 
     pub fn from_fen(fen: &str) -> Result<BoardState, FenError> {
-        let mut fen_struct = match BoardState::new() {
-            Ok(fen) => fen,
-            Err(error) => panic!("{}", error),
-        };
+        let mut fen_struct = BoardState::new()?;
         let fields: Vec<_> = fen.split(" ").collect();
-        let board = match Self::create_board(fields[0]) {
-            Ok(board) => board,
-            Err(error) => panic!("{}", error),
-        };
+        let board = Self::create_board(fields[0])?;
         fen_struct.piece_placement = board;
 
-        let active_color = match Self::get_active_color(fields[1]) {
-            Ok(color) => color,
-            Err(error) => panic!("{}", error),
-        };
+        let active_color = Self::get_active_color(fields[1])?;
         fen_struct.active_color = active_color;
 
         let castling = fields[2];
@@ -102,17 +93,13 @@ impl BoardState {
 
         fen_struct.en_passant_target = en_passant;
 
-        let halfmove = fields[4]
+        fen_struct.halfmove_clock = fields[4]
             .parse::<u32>()
-            .expect("Error: failed to parse halfmove clock");
+            .map_err(|_| FenError::BadHalfmove("Failed to parse halfmove clock".to_string()))?;
 
-        fen_struct.halfmove_clock = halfmove;
-
-        let fullmove = fields[5]
+        fen_struct.fullmove_clock = fields[5]
             .parse::<u32>()
-            .expect("Error: failed to parse fullmove number");
-
-        fen_struct.fullmove_clock = fullmove;
+            .map_err(|_| FenError::BadFullmove("Failed to parse fullmove number".to_string()))?;
 
         println!("{:?}", fen_struct);
 
