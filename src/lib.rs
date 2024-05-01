@@ -94,8 +94,6 @@ impl BoardState {
             .parse::<u32>()
             .map_err(|_| FenError::BadFullmove("Failed to parse fullmove number".to_string()))?;
 
-        println!("{:?}", fen_struct);
-
         return Ok(fen_struct);
         // TODO: propegate Err to function
     }
@@ -172,7 +170,13 @@ impl BoardState {
                 color: Color::Black,
                 piece_type: PieceType::King,
             })),
-            _ => Err(FenError::BadPieceNotation(("Unknown piece").to_string())),
+            _ => {
+                let piece_str = format!("{}", piece);
+                Err(FenError::BadPieceNotation(format!(
+                    "Unknown piece: '{}'",
+                    piece_str
+                )))
+            }
         }
     }
     // TODO:
@@ -337,5 +341,57 @@ mod test {
             fullmove_clock: 1,
         };
         assert_eq!(start_fen, start_board);
+    }
+    #[test]
+    fn test_create_board() {
+        let fields: Vec<_> = STARTING_FEN.split(" ").collect();
+        let board = BoardState::create_board(fields[0]).unwrap();
+
+        println!("{:?}", board);
+        assert_eq!(board.len(), 64);
+
+        assert_eq!(
+            board[0],
+            Some(Piece {
+                color: Color::Black,
+                piece_type: PieceType::Rook
+            })
+        );
+        assert_eq!(
+            board[7],
+            Some(Piece {
+                color: Color::Black,
+                piece_type: PieceType::Rook
+            })
+        );
+        assert_eq!(
+            board[56],
+            Some(Piece {
+                color: Color::White,
+                piece_type: PieceType::Rook
+            })
+        );
+        assert_eq!(
+            board[63],
+            Some(Piece {
+                color: Color::White,
+                piece_type: PieceType::Rook
+            })
+        );
+    }
+
+    #[test]
+    fn test_from_fen() {
+        let board_state = BoardState::from_fen(STARTING_FEN).unwrap();
+
+        assert_eq!(board_state.active_color, Color::White);
+
+        assert_eq!(board_state.white_castle_kingside, true);
+        assert_eq!(board_state.white_castle_queenside, true);
+        assert_eq!(board_state.black_castle_kingside, true);
+        assert_eq!(board_state.black_castle_queenside, true);
+
+        assert_eq!(board_state.halfmove_clock, 0);
+        assert_eq!(board_state.fullmove_clock, 1);
     }
 }
