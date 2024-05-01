@@ -1,12 +1,9 @@
 mod error;
 
-use std::fmt::Error;
-
 use error::FenError;
 
 pub const STARTING_FEN: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-/// Piece options and color piece belongs to
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Color {
     White,
@@ -32,20 +29,16 @@ pub struct Piece {
 /// The state of the game
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct BoardState {
-    // For each square, a piece can either exist or be None
     pub piece_placement: Vec<Option<Piece>>,
     pub active_color: Color,
-    // most straightfoward way to handle castling is with specific fields
     pub white_castle_kingside: bool,
     pub white_castle_queenside: bool,
 
     pub black_castle_kingside: bool,
     pub black_castle_queenside: bool,
 
-    // will be a single square 1-64
     pub en_passant_target: Option<u8>,
 
-    // no way this has to be u64
     pub halfmove_clock: u32,
     pub fullmove_clock: u32,
 }
@@ -110,25 +103,17 @@ impl BoardState {
     fn get_active_color(field: &str) -> Result<Color, FenError> {
         match field {
             "w" => Ok(Color::White),
-            "b" => Ok(Color::White),
-            _ => Err(FenError::BadActiveColor(("Unknown Color").to_string())),
+            "b" => Ok(Color::Black),
+            _ => Err(FenError::BadActiveColor("Unknown Color".to_string())),
         }
     }
 
     // board portion of the fen
     fn create_board(board: &str) -> Result<Vec<Option<Piece>>, FenError> {
-        let board: Vec<_> = board.split("/").collect();
-        let mut new_board = Vec::new();
-        for file in board {
-            for sq in file.chars() {
-                let piece = match Self::get_piece(sq) {
-                    Ok(square) => square,
-                    Err(error) => panic!("{}", error),
-                };
-                new_board.push(piece);
-            }
-        }
-        return Ok(new_board);
+        board
+            .split('/')
+            .flat_map(|file| file.chars().map(Self::get_piece))
+            .collect()
     }
 
     fn get_piece(piece: char) -> Result<Option<Piece>, FenError> {
@@ -351,5 +336,6 @@ mod test {
             halfmove_clock: 0,
             fullmove_clock: 1,
         };
+        assert_eq!(start_fen, start_board);
     }
 }
