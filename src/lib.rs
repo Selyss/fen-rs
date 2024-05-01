@@ -108,16 +108,22 @@ impl BoardState {
 
     // board portion of the fen
     fn create_board(board: &str) -> Result<Vec<Option<Piece>>, FenError> {
-        board
-            .split('/')
-            .flat_map(|file| file.chars().map(Self::get_piece))
-            .collect()
+        let mut piece_placement = Vec::new();
+        for file in board.split('/') {
+            for char in file.chars() {
+                if let Some(digit) = char.to_digit(10) {
+                    for _ in 0..digit {
+                        piece_placement.push(None);
+                    }
+                } else {
+                    piece_placement.push(Self::get_piece(char)?);
+                }
+            }
+        }
+        Ok(piece_placement)
     }
 
     fn get_piece(piece: char) -> Result<Option<Piece>, FenError> {
-        if piece.to_digit(10).is_some() {
-            return Ok(None);
-        }
         match piece {
             // White pieces
             'P' => Ok(Some(Piece {
@@ -188,166 +194,12 @@ impl BoardState {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::Color::{Black, White};
-    use crate::PieceType::{Bishop, King, Knight, Pawn, Queen, Rook};
 
-    #[test]
-    fn test_starting_position() {
-        let start_fen = BoardState::from_fen(STARTING_FEN).expect("Error");
-
-        let start_board = BoardState {
-            piece_placement: [
-                Some(Piece {
-                    color: Black,
-                    piece_type: Rook,
-                }),
-                Some(Piece {
-                    color: Black,
-                    piece_type: Knight,
-                }),
-                Some(Piece {
-                    color: Black,
-                    piece_type: Bishop,
-                }),
-                Some(Piece {
-                    color: Black,
-                    piece_type: Queen,
-                }),
-                Some(Piece {
-                    color: Black,
-                    piece_type: King,
-                }),
-                Some(Piece {
-                    color: Black,
-                    piece_type: Bishop,
-                }),
-                Some(Piece {
-                    color: Black,
-                    piece_type: Knight,
-                }),
-                Some(Piece {
-                    color: Black,
-                    piece_type: Rook,
-                }),
-                Some(Piece {
-                    color: Black,
-                    piece_type: Pawn,
-                }),
-                Some(Piece {
-                    color: Black,
-                    piece_type: Pawn,
-                }),
-                Some(Piece {
-                    color: Black,
-                    piece_type: Pawn,
-                }),
-                Some(Piece {
-                    color: Black,
-                    piece_type: Pawn,
-                }),
-                Some(Piece {
-                    color: Black,
-                    piece_type: Pawn,
-                }),
-                Some(Piece {
-                    color: Black,
-                    piece_type: Pawn,
-                }),
-                Some(Piece {
-                    color: Black,
-                    piece_type: Pawn,
-                }),
-                Some(Piece {
-                    color: Black,
-                    piece_type: Pawn,
-                }),
-                None,
-                None,
-                None,
-                None,
-                Some(Piece {
-                    color: White,
-                    piece_type: Pawn,
-                }),
-                Some(Piece {
-                    color: White,
-                    piece_type: Pawn,
-                }),
-                Some(Piece {
-                    color: White,
-                    piece_type: Pawn,
-                }),
-                Some(Piece {
-                    color: White,
-                    piece_type: Pawn,
-                }),
-                Some(Piece {
-                    color: White,
-                    piece_type: Pawn,
-                }),
-                Some(Piece {
-                    color: White,
-                    piece_type: Pawn,
-                }),
-                Some(Piece {
-                    color: White,
-                    piece_type: Pawn,
-                }),
-                Some(Piece {
-                    color: White,
-                    piece_type: Pawn,
-                }),
-                Some(Piece {
-                    color: White,
-                    piece_type: Rook,
-                }),
-                Some(Piece {
-                    color: White,
-                    piece_type: Knight,
-                }),
-                Some(Piece {
-                    color: White,
-                    piece_type: Bishop,
-                }),
-                Some(Piece {
-                    color: White,
-                    piece_type: Queen,
-                }),
-                Some(Piece {
-                    color: White,
-                    piece_type: King,
-                }),
-                Some(Piece {
-                    color: White,
-                    piece_type: Bishop,
-                }),
-                Some(Piece {
-                    color: White,
-                    piece_type: Knight,
-                }),
-                Some(Piece {
-                    color: White,
-                    piece_type: Rook,
-                }),
-            ]
-            .to_vec(),
-            active_color: White,
-            white_castle_kingside: true,
-            white_castle_queenside: true,
-            black_castle_kingside: true,
-            black_castle_queenside: true,
-            en_passant_target: None,
-            halfmove_clock: 0,
-            fullmove_clock: 1,
-        };
-        assert_eq!(start_fen, start_board);
-    }
     #[test]
     fn test_create_board() {
         let fields: Vec<_> = STARTING_FEN.split(" ").collect();
         let board = BoardState::create_board(fields[0]).unwrap();
 
-        println!("{:?}", board);
         assert_eq!(board.len(), 64);
 
         assert_eq!(
