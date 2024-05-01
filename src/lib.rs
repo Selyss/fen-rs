@@ -51,10 +51,13 @@ pub struct BoardState {
 }
 
 impl BoardState {
-    pub fn new() -> BoardState {
+    pub fn new() -> Result<BoardState, FenError> {
         let fields: Vec<_> = STARTING_FEN.split(" ").collect();
-        let starting_board = Self::create_board(fields[0]);
-        return BoardState {
+        let starting_board = match Self::create_board(fields[0]) {
+            Ok(board) => board,
+            Err(error) => panic!("{}", error),
+        };
+        return Ok(BoardState {
             piece_placement: starting_board,
             active_color: Color::White,
             white_castle_kingside: true,
@@ -64,13 +67,19 @@ impl BoardState {
             en_passant_target: None,
             halfmove_clock: 0,
             fullmove_clock: 1,
-        };
+        });
     }
 
     pub fn from_fen(fen: &str) -> Result<BoardState, FenError> {
-        let mut fen_struct = BoardState::new();
+        let mut fen_struct = match BoardState::new() {
+            Ok(fen) => fen,
+            Err(error) => panic!("{}", error),
+        };
         let fields: Vec<_> = fen.split(" ").collect();
-        let board = Self::create_board(fields[0]);
+        let board = match Self::create_board(fields[0]) {
+            Ok(board) => board,
+            Err(error) => panic!("{}", error),
+        };
         fen_struct.piece_placement = board;
 
         let active_color = match Self::get_active_color(fields[1]) {
@@ -108,6 +117,7 @@ impl BoardState {
         println!("{:?}", fen_struct);
 
         return Ok(fen_struct);
+        // TODO: propegate Err to function
     }
 
     fn get_active_color(field: &str) -> Result<Color, FenError> {
@@ -119,7 +129,7 @@ impl BoardState {
     }
 
     // board portion of the fen
-    fn create_board(board: &str) -> Vec<Option<Piece>> {
+    fn create_board(board: &str) -> Result<Vec<Option<Piece>>, FenError> {
         let board: Vec<_> = board.split("/").collect();
         let mut new_board = Vec::new();
         for file in board {
@@ -131,7 +141,7 @@ impl BoardState {
                 new_board.push(piece);
             }
         }
-        return new_board;
+        return Ok(new_board);
     }
 
     fn get_piece(piece: char) -> Result<Option<Piece>, FenError> {
