@@ -1,7 +1,5 @@
-use crate::BoardState;
-use crate::Color;
-use crate::Piece;
-use crate::PieceType;
+use crate::board::BoardState;
+use crate::pieces::{Color, Piece, PieceType};
 
 pub trait ToFen {
     fn to_fen(board_state: &BoardState) -> String;
