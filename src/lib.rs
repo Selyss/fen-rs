@@ -245,4 +245,10 @@ mod test {
         assert_eq!(board_state.halfmove_clock, 0);
         assert_eq!(board_state.fullmove_clock, 1);
     }
+
+    #[test]
+    fn test_to_fen() {
+        let board_state = BoardState::from_fen(STARTING_FEN).unwrap();
+        assert_eq!(STARTING_FEN, BoardState::to_fen(&board_state));
+    }
 }

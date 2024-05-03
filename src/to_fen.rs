@@ -4,20 +4,77 @@ use crate::Piece;
 use crate::PieceType;
 
 pub trait ToFen {
-    fn to_fen(&self) -> String;
+    fn to_fen(board_state: &BoardState) -> String;
     fn castling_to_fen(
         white_kingside: bool,
         white_queenside: bool,
         black_kingside: bool,
         black_queenside: bool,
     ) -> String;
+    fn piece_placement_to_fen(piece_placement: &[Option<Piece>]) -> String;
     fn piece_to_fen(piece: &Piece) -> String;
 }
 
 impl ToFen for BoardState {
-    fn to_fen(&self) -> String {
+    fn to_fen(board_state: &BoardState) -> String {
         let mut fen = String::new();
-        todo!()
+        fen.push_str(&BoardState::piece_placement_to_fen(
+            &board_state.piece_placement,
+        ));
+        let active_color = match board_state.active_color {
+            Color::White => 'w',
+            Color::Black => 'b',
+        };
+        fen.push(' ');
+        fen.push(active_color);
+
+        fen.push(' ');
+        fen.push_str(&BoardState::castling_to_fen(
+            board_state.white_castle_kingside,
+            board_state.white_castle_queenside,
+            board_state.black_castle_kingside,
+            board_state.black_castle_queenside,
+        ));
+
+        fen.push(' ');
+        // TODO: en passant
+        fen.push('-'); // placeholder for en passant
+
+        fen.push(' ');
+        fen.push_str(&board_state.halfmove_clock.to_string());
+
+        fen.push(' ');
+        fen.push_str(&board_state.fullmove_clock.to_string());
+
+        return fen;
+    }
+    fn piece_placement_to_fen(piece_placement: &[Option<Piece>]) -> String {
+        let mut fen = String::new();
+        // amount of empty squares
+        let mut empty = 0;
+
+        for (index, square) in piece_placement.iter().enumerate() {
+            match square {
+                Some(piece) => {
+                    if empty > 0 {
+                        fen.push_str(&empty.to_string());
+                        empty = 0;
+                    }
+                    fen.push_str(&BoardState::piece_to_fen(piece));
+                }
+                None => empty += 1,
+            }
+            if (index + 1) % 8 == 0 {
+                if empty > 0 {
+                    fen.push_str(&empty.to_string());
+                    empty = 0;
+                }
+                if index != 63 {
+                    fen.push('/');
+                }
+            }
+        }
+        return fen;
     }
     fn piece_to_fen(piece: &Piece) -> String {
         match piece.piece_type {
