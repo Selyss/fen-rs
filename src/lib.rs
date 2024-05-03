@@ -104,6 +104,7 @@ mod test {
         let board_state =
             BoardState::from_fen("8/5pkp/4b3/p3P1b1/1p5P/1P1R2B1/P5PK/2rB4 b - - 0 33").unwrap();
         let json = board_state.to_json().unwrap();
-        todo!("{}", json)
+        let board = BoardState::from_json(json.as_str()).unwrap();
+        assert_eq!(board_state, board)
     }
 }
