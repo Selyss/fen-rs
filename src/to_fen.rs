@@ -13,6 +13,7 @@ pub trait ToFen {
     ) -> String;
     fn piece_placement_to_fen(piece_placement: &[Option<Piece>]) -> String;
     fn piece_to_fen(piece: &Piece) -> String;
+    fn en_passant_to_fen(target: Option<u8>) -> String;
 }
 
 impl ToFen for BoardState {
@@ -37,8 +38,9 @@ impl ToFen for BoardState {
         ));
 
         fen.push(' ');
-        // TODO: en passant
-        fen.push('-'); // placeholder for en passant
+        fen.push_str(&BoardState::en_passant_to_fen(
+            board_state.en_passant_target,
+        ));
 
         fen.push(' ');
         fen.push_str(&board_state.halfmove_clock.to_string());
@@ -127,5 +129,15 @@ impl ToFen for BoardState {
             fen.push('-');
         }
         return fen;
+    }
+    fn en_passant_to_fen(target: Option<u8>) -> String {
+        match target {
+            Some(square) => {
+                let file = (b'a' + (square % 8) as u8) as char;
+                let rank = (b'1' + (square / 8) as u8) as char;
+                format!("{}{}", file, rank)
+            }
+            None => "-".to_string(),
+        }
     }
 }
