@@ -1,6 +1,8 @@
 mod error;
 
+pub mod to_fen;
 use error::FenError;
+pub use to_fen::ToFen;
 
 pub const STARTING_FEN: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -26,7 +28,6 @@ pub struct Piece {
     piece_type: PieceType,
 }
 
-/// The state of the game
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct BoardState {
     pub piece_placement: Vec<Option<Piece>>,
@@ -106,7 +107,6 @@ impl BoardState {
         }
     }
 
-    // board portion of the fen
     fn create_board(board: &str) -> Result<Vec<Option<Piece>>, FenError> {
         let mut piece_placement = Vec::new();
         for file in board.split('/') {
@@ -186,13 +186,12 @@ impl BoardState {
         }
     }
     // TODO:
-    pub fn to_fen(board_state: BoardState) -> String {
-        todo!()
-    }
+    // to json
 }
 
 #[cfg(test)]
 mod test {
+
     use super::*;
 
     #[test]
