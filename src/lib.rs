@@ -75,4 +75,35 @@ mod test {
             BoardState::to_fen(&board_state)
         );
     }
+
+    #[test]
+    fn test_to_json() {
+        let board_state = BoardState::from_fen(STARTING_FEN).unwrap();
+        let json = board_state.to_json();
+    }
+
+    #[test]
+    fn test_from_json() {
+        let json_str = r#"{
+            "piece_placement": [
+                {"color": "White", "piece_type": "Pawn"},
+                null,
+                {"color": "Black", "piece_type": "Pawn"}
+            ],
+            "active_color": "White",
+            "white_castle_kingside": true,
+            "white_castle_queenside": false,
+            "black_castle_kingside": false,
+            "black_castle_queenside": true,
+            "en_passant_target": null,
+            "halfmove_clock": 0,
+            "fullmove_clock": 1
+        }"#;
+
+        let board_state_json = BoardState::from_json(json_str);
+        let board_state =
+            BoardState::from_fen("8/5pkp/4b3/p3P1b1/1p5P/1P1R2B1/P5PK/2rB4 b - - 0 33").unwrap();
+        let json = board_state.to_json().unwrap();
+        todo!("{}", json)
+    }
 }

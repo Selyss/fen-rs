@@ -1,9 +1,11 @@
 use crate::error::FenError;
 use crate::pieces::{Color, Piece, PieceType};
+use serde::{Deserialize, Serialize};
+use serde_json;
 
 pub const STARTING_FEN: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct BoardState {
     pub piece_placement: Vec<Option<Piece>>,
     pub active_color: Color,
@@ -160,6 +162,13 @@ impl BoardState {
             }
         }
     }
-    // TODO:
-    // to json
+
+    // should these modify or make a new one
+    pub fn to_json(&self) -> Result<String, serde_json::Error> {
+        return serde_json::to_string(&self);
+    }
+
+    pub fn from_json(json_str: &str) -> Result<BoardState, serde_json::Error> {
+        return serde_json::from_str(json_str);
+    }
 }
